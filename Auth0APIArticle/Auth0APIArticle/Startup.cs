@@ -45,7 +45,7 @@ namespace Auth0APIArticle
 
             var options = new JwtBearerOptions
             {
-                Audience = Configuration["JWTOptions:clientId"],
+                Audience = Configuration["JWTOptions:ApiIdentifier"],
                 Authority = $"https://{Configuration["JWTOptions:domain"]}/"
             };
             app.UseJwtBearerAuthentication(options);
