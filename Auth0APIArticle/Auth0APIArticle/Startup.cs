@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -31,6 +32,18 @@ namespace Auth0APIArticle
             // Add framework services.
             services.AddMvc();
 
+            string domain = $"https://{Configuration["Auth0:Domain"]}/";
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = domain;
+                options.Audience = Configuration["Auth0:ApiIdentifier"];
+            });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "Auth0APIArticle", Version = "v1" });
@@ -43,12 +56,7 @@ namespace Auth0APIArticle
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            var options = new JwtBearerOptions
-            {
-                Audience = Configuration["JWTOptions:ApiIdentifier"],
-                Authority = $"https://{Configuration["JWTOptions:domain"]}/"
-            };
-            app.UseJwtBearerAuthentication(options);
+            app.UseAuthentication();
 
             app.UseMvc();
 
